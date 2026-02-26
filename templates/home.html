@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Skin AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Skin Disease Classifier</h1>
+  <p class="subtitle">Upload an image of a skin disease and get the predicted class.</p>
+
+  <div class="main-box">
+    <div class="left-panel">
+      <!-- Upload Form -->
+      <form action="/predict" method="post" enctype="multipart/form-data">
+
+        <div class="upload-box" id="uploadBox">
+            
+            <input type="file" name="file" id="fileInput" accept="image/*" hidden>
+
+            {% if image_data %}
+                <!-- Image persists after submit -->
+                <img src="{{ image_data }}" 
+                    id="previewImage" 
+                    class="preview-img">
+            {% else %}
+                <!-- Default Upload Text -->
+                <div id="uploadContent">
+                    <div id="uploadContent">
+                        <p>
+                            Click here <br>
+                            — or — <br>
+                            Drop Image to Upload
+                        </p>
+                    </div>
+                </div>
+
+                <img id="previewImage" 
+                    class="preview-img" 
+                    style="display:none;">
+            {% endif %}
+        </div>
+        <div class="spacer"></div>
+
+        <div class="button-row">
+          <div class="buttons">
+              <button type="submit" class="submit-btn">Submit</button>
+              <button type="button" id="clearBtn" class="clear-btn">Clear</button>
+          </div>
+        </div>
+      </form>
+    </div> 
+    <!-- Result Box -->
+    <div class="right-panel">
+        {% if prediction %}
+        <div class="result-box">
+            <h2 class="prediction">{{ prediction }}</h2>
+            <p class="confidence" style="font-size: 15px;">Confidence: {{ probability }}%</p>
+
+            <div class="treatment-section">
+                <h3>Common Treatments:</h3>
+                <ul>
+                    {% for treatment in common_treatments %}
+                        <li>{{ treatment }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="treatment-section">
+                <h3>Specific Treatments:</h3>
+                <ul>
+                    {% for treatment in specific_treatments %}
+                        <li>{{ treatment }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("fileInput").addEventListener("change", function(event) {
+    const reader = new FileReader();
+    reader.onload = function(){
+        const img = document.getElementById("previewImage");
+        img.src = reader.result;
+        img.style.display = "block";
+    }
+    reader.readAsDataURL(event.target.files[0]);
+});
+
+const uploadBox = document.getElementById("uploadBox");
+const fileInput = document.getElementById("fileInput");
+const previewImage = document.getElementById("previewImage");
+const uploadContent = document.getElementById("uploadContent");
+const clearBtn = document.getElementById("clearBtn");
+
+// Click to open file dialog
+uploadBox.addEventListener("click", () => {
+    fileInput.click();
+});
+
+// When file selected
+fileInput.addEventListener("change", handleFile);
+
+// Drag over
+uploadBox.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadBox.style.borderColor = "orange";
+});
+
+// Drag leave
+uploadBox.addEventListener("dragleave", () => {
+    uploadBox.style.borderColor = "#555";
+});
+
+// Drop
+uploadBox.addEventListener("drop", (e) => {
+    e.preventDefault();
+    fileInput.files = e.dataTransfer.files;
+    handleFile();
+});
+
+// Handle preview
+function handleFile() {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        previewImage.style.display = "block";
+        uploadContent.style.display = "none";
+    }
+    reader.readAsDataURL(file);
+}
+
+// Clear button
+clearBtn.addEventListener("click", () => {
+    fileInput.value = "";
+    previewImage.src = "";
+    previewImage.style.display = "none";
+    uploadContent.style.display = "block";
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,266 @@
+@import url('https://rsms.me');
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #0e0e11; 
+    background:linear-gradient(135deg,#0e0e11,#1f010a,#3f0013);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.main-box {
+  display: flex;
+  flex-direction: column;        
+  justify-content: center;   
+  align-items: center;
+  gap: 50px;                
+  margin-top: 10px;
+  flex-wrap: wrap;           
+  width: 100%;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 40px;
+}
+
+.main-layout {
+    display: flex;
+    flex-direction: row;        
+    flex-wrap: wrap;           
+    gap: 40px;                  
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.left-panel, .right-panel {
+    flex: 1 1 450px;           
+    max-width: 500px;          
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.upload-box {
+    width: 100%;
+    height: 350px;             
+    border: 2px dashed #444;
+    border-radius: 12px;
+    background: #490218;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;          
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+}
+
+.upload-box:hover {
+    border-color: orange;
+}
+
+#previewImage {
+    max-width: 100%;         
+    max-height: 100%;          
+    object-fit: contain;       
+    display: block;            
+}
+
+.placeholder-text {
+    color: #666;
+    text-align: center;
+}
+
+.button-row {
+    display: flex;           
+    justify-content: center;   
+    gap: 30px;                
+    margin-top: 30px;         
+    width: 100%;
+}
+
+button {
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    width: auto;              
+}
+
+.submit-btn { background: orange; color: #000;}
+.clear-btn { background: #333; color: white; margin-left: 20px; }
+
+
+.result-box {
+
+    padding: 30px;
+    text-align: left;
+}
+
+.prediction { 
+    color: orange; 
+    font-size: 22px; 
+    font-weight: 600; 
+    margin-bottom: 5px; 
+}
+
+.confidence { 
+    color: #888; 
+    font-size: 14px; 
+    margin-bottom: 25px; 
+}
+
+.treatment-section h2 { 
+    border-bottom: 1px solid #333; 
+    padding-bottom: 8px; 
+    margin-top: 20px; 
+}
+
+#uploadContent {
+    text-align: center;
+}
+
+#uploadContent p {
+    margin: 0;
+    line-height: 1.8;
+}
+
+.treatment-section ul { 
+    padding-left: 20px; 
+    color: #bbb; 
+    font-size: 18px;
+}
+
+
+
+
+.hero-section {
+    padding: 100px 20px 100px;
+    text-align: center;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #888;
+    display: inline-block;
+    margin-bottom: 24px;
+}
+
+.hero-title {
+    font-size: 84px; /* Large, bold Framer-style heading */
+    font-weight: 700;
+    letter-spacing: -3px; /* Tight tracking is key to this look */
+    line-height: 1.05;
+    margin-bottom: 24px;
+}
+
+.hero-subtitle {
+    font-size: 20px;
+    color: #999;
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.5;
+}
+
+.hero-btn {
+    background-color: #fff;
+    color: #000;
+    padding: 14px 32px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+.hero-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Adjust your existing container to sit below the hero */
+.container {
+    padding-top: 40px;
+}
+
+
+@media (max-width: 800px) {
+    .main-layout {
+        flex-direction: column; 
+        align-items: center;
+    }
+    
+    .upload-box {
+        height: 280px;         
+    }
+
+    .left-panel, .right-panel {
+        max-width: 100%;
+    }
+    .main-box {
+      flex-direction: column; 
+      align-items: center;
+      gap: 10px;     
+      margin-top: 10px;
+    }
+    
+    .hero-section {
+        padding: 60px 15px 40px; /* Reduced padding for mobile */
+    }
+
+    .hero-title {
+        font-size: 42px; /* Half the size so it fits on one screen */
+        letter-spacing: -1.5px; /* Slightly looser tracking for readability */
+        line-height: 1.1;
+        margin-bottom: 16px;
+    }
+
+    .hero-subtitle {
+        font-size: 17px; /* Slightly smaller text */
+        margin-bottom: 30px;
+        padding: 0 10px;
+    }
+
+    .hero-btn {
+        width: 50%; /* Full width button is easier to thumb-tap */
+        box-sizing: border-box;
+        padding: 16px 0;
+    }
+
+    /* Adjust the main app container for mobile */
+    .container {
+        padding-top: 20px;
+        width: 95%;
+    }
+
+}
+
+
+
+
