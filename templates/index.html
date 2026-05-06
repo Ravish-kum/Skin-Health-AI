@@ -3,19 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skin Disease Classification</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Tvacha AI — Skin Health Intelligence</title>
+    <meta name="description" content="AI-powered skin disease classification and personalized cure tracking with Tvacha AI.">
+    <link rel="stylesheet" href="/static/style.css?v=3">
 </head>
 <body>
+  <div class="bg-glow"></div>
+  <canvas id="texture-canvas"></canvas>
+  <div class="noise"></div>
+  <div class="container">
     <header class="hero-section">
-  <div class="hero-content">
-    <span class="badge">Skin Health AI</span>
-    <h1 class="hero-title">A Part of Your<br>New Skincare Routine</h1>
-    <p class="hero-subtitle">
-      Your skin often shows the first signs of imbalance, <br>track your skin's health daily with <b>Tvacha AI</b> to avoid serious complications later.
-    </p>
-    <a href="{{ url_for('home') }}" class="hero-btn">Start for free</a>
+      <div class="hero-content">
+        <span class="badge">✦ Skin Health AI</span>
+        <h1 class="hero-title">A Part of Your<br>New Skincare Routine</h1>
+        <p class="hero-subtitle">
+          Your skin often shows the first signs of imbalance.<br>
+          Track your skin's health daily with <strong>Tvacha AI</strong> to avoid serious complications later.
+        </p>
+        <div class="hero-buttons">
+          <a href="{{ url_for('home') }}" class="hero-btn hero-btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Start for Free
+          </a>
+          <a href="/signup" class="hero-btn hero-btn-outline">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Sign Up
+          </a>
+        </div>
+      </div>
+    </header>
   </div>
-</header>
+
+<script src="/static/canvas.js?v=3"></script>
 </body>
 </html>

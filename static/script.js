@@ -1,51 +1,58 @@
-const fileInput = document.getElementById("fileInput");
-const previewImage = document.getElementById("previewImage");
-const uploadText = document.getElementById("uploadText");
-const predictionBox = document.getElementById("predictionBox");
+document.addEventListener("DOMContentLoaded", () => {
+    const fileInput = document.getElementById("fileInput");
+    if (!fileInput) return; // Only run on pages that have fileInput
 
-let selectedFile = null;
+    const uploadBox = document.getElementById("uploadBox");
+    const previewImage = document.getElementById("previewImage");
+    const uploadContent = document.getElementById("uploadContent");
+    const clearBtn = document.getElementById("clearBtn");
 
-fileInput.addEventListener("change", function () {
-  selectedFile = this.files[0];
+    // Click to open file dialog
+    uploadBox.addEventListener("click", () => {
+        fileInput.click();
+    });
 
-  if (selectedFile) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      previewImage.src = e.target.result;
-      previewImage.style.display = "block";
-      uploadText.style.display = "none";
-    };
-    reader.readAsDataURL(selectedFile);
-  }
+    // When file selected
+    fileInput.addEventListener("change", handleFile);
+
+    // Drag over
+    uploadBox.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadBox.style.borderColor = "orange"; 
+    });
+
+    // Drag leave
+    uploadBox.addEventListener("dragleave", () => {
+        uploadBox.style.borderColor = "#555";
+    });
+
+    // Drop
+    uploadBox.addEventListener("drop", (e) => {
+        e.preventDefault();
+        fileInput.files = e.dataTransfer.files;
+        handleFile();
+    });
+
+    // Handle preview
+    function handleFile() {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            previewImage.style.display = "block";
+            uploadContent.style.display = "none";
+        }
+        reader.readAsDataURL(file);
+    }
+
+    // Clear button
+    clearBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent clicking the clear button from triggering uploadBox click
+        fileInput.value = "";
+        previewImage.src = "";
+        previewImage.style.display = "none";
+        uploadContent.style.display = "block";
+    });
 });
-
-// function predict() {
-//   if (!selectedFile) {
-//     alert("Please upload an image first.");
-//     return;
-//   }
-
-//   predictionBox.innerHTML = "Predicting...";
-
-//   // ⚠️ Replace this with real API call later
-//   // Example simulation:
-//   setTimeout(() => {
-//     const fakePrediction = "Eczema";
-//     const fakeConfidence = 0.927;
-
-//     predictionBox.innerHTML = `
-//       <strong>${fakePrediction}</strong>
-//       <br>
-//       Confidence: ${fakeConfidence}
-//     `;
-//   }, 1500);
-// }
-
-function clearAll() {
-  selectedFile = null;
-  fileInput.value = "";
-  previewImage.style.display = "none";
-  uploadText.style.display = "block";
-  predictionBox.innerHTML = "Waiting for prediction...";
-}
-

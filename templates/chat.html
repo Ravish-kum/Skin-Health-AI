@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat & Diagnosis Tracking</title>
+    <link rel="stylesheet" href="/static/style.css?v=3">
+    <style>
+        .chat-layout {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            gap: 20px;
+            height: 82vh;
+        }
+        
+        /* ── Sidebar ── */
+        .sidebar {
+            flex: 0 0 260px;
+            background: rgba(60,15,30,0.5);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 24px 16px;
+            overflow-y: auto;
+            backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .sidebar-title {
+            margin: 0 0 12px;
+            color: #ff7aa2;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0 4px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .history-item {
+            background: rgba(255,255,255,0.03);
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            border: 1px solid transparent;
+            transition: all 0.25s ease;
+            display: block;
+        }
+        .history-item:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,94,138,0.2);
+        }
+        .history-item.active {
+            background: rgba(255,94,138,0.1);
+            border-color: #ff5e8a;
+        }
+        .history-date {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .history-disease {
+            font-weight: 600;
+            margin-top: 4px;
+            color: #f0e6ea;
+            font-size: 14px;
+        }
+
+        /* ── Chat Panel ── */
+        .chat-container {
+            flex: 1;
+            background: rgba(60,15,30,0.5);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 28px;
+            backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .chat-header {
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 20px;
+        }
+        .chat-header h1 {
+            color: #ff7aa2;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .chat-header p {
+            color: rgba(255,255,255,0.4);
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        .chat-box {
+            flex: 1;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .message {
+            max-width: 78%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.65;
+            white-space: pre-wrap;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.8);
+            border-bottom-left-radius: 4px;
+        }
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #ff5e8a, #e0245e);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 16px rgba(224,36,94,0.25);
+        }
+
+        /* ── Input Area ── */
+        .input-group {
+            display: flex;
+            gap: 12px;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 16px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.3);
+            color: #f0e6ea;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .input-group input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff5e8a;
+            box-shadow: 0 0 0 3px rgba(255,94,138,0.1);
+        }
+        .input-group button {
+            background: linear-gradient(135deg, #ff5e8a, #e0245e);
+            color: white;
+            border: none;
+            padding: 0 28px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 16px rgba(224,36,94,0.25);
+        }
+        .input-group button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(224,36,94,0.4);
+        }
+        .input-group button:disabled {
+            background: rgba(255,255,255,0.08);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+            color: rgba(255,255,255,0.35);
+        }
+
+        /* ── Footer Nav ── */
+        .nav-links {
+            text-align: center;
+            padding-top: 8px;
+        }
+        .nav-links a {
+            color: rgba(255,255,255,0.45);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #ff7aa2;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            margin: auto;
+            font-size: 15px;
+        }
+        .empty-state svg {
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+        
+        @media (max-width: 800px) {
+            .chat-layout {
+                flex-direction: column;
+                height: auto;
+            }
+            .sidebar {
+                flex: none;
+                max-height: 180px;
+            }
+            .chat-container {
+                height: 65vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <canvas id="texture-canvas"></canvas>
+    <div class="noise"></div>
+
+    <div class="container" style="max-width: 1200px; padding: 20px;">
+        <div class="chat-layout">
+            
+            <!-- Left Sidebar -->
+            <div class="sidebar">
+                <h2 class="sidebar-title">Diagnosis History</h2>
+                {% if history %}
+                    {% for item in history %}
+                        <a href="/chat?diagnosis_id={{ item.id }}" class="history-item {% if selected_diagnosis and selected_diagnosis.diagnosis_id == item.id %}active{% endif %}">
+                            <div class="history-date">{{ item.date }}</div>
+                            <div class="history-disease">{{ item.disease }}</div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 20px 0;">No diagnoses yet.<br><a href="/skincheckup" style="color: #ff7aa2;">Get your first checkup →</a></p>
+                {% endif %}
+            </div>
+            
+            <!-- Right Chat -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h1>AI Dermatologist</h1>
+                    {% if selected_diagnosis %}
+                        <p>Tracking: <strong style="color: #ff7aa2;">{{ selected_diagnosis.disease_name }}</strong></p>
+                    {% else %}
+                        <p>Select a diagnosis from the sidebar to begin.</p>
+                    {% endif %}
+                </div>
+                
+                <div class="chat-box" id="chatBox">
+                    {% if selected_diagnosis %}
+                        {% for msg in chat_history %}
+                            <div class="message {{ msg.sender }}">{{ msg.text }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                            <p>Select a diagnosis from the left<br>to view its AI cure path.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if selected_diagnosis %}
+                <div class="input-group">
+                    <input type="text" id="chatInput" placeholder="Ask about your diagnosis..." autocomplete="off">
+                    <button id="sendBtn" data-diagnosis-id="{{ selected_diagnosis.diagnosis_id }}">Send</button>
+                </div>
+                {% endif %}
+
+                <div class="nav-links">
+                    <a href="/skincheckup">← Skin Checkup</a>
+                    <span style="margin: 0 12px; color: rgba(255,255,255,0.15);">|</span>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="/static/canvas.js?v=3"></script>
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+        const btn = document.getElementById('sendBtn');
+        const diagnosisId = btn.dataset.diagnosisId;
+        const text = input.value.trim();
+        if (!text) return;
+            
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.textContent = text;
+            chatBox.appendChild(userMsg);
+            
+            input.value = '';
+            input.disabled = true;
+            btn.disabled = true;
+            btn.textContent = '···';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/chat/message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ diagnosis_id: diagnosisId, message: text })
+                });
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                
+                const botMsg = document.createElement('div');
+                botMsg.className = 'message bot';
+                botMsg.textContent = data.response;
+                chatBox.appendChild(botMsg);
+            } catch (err) {
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'message bot';
+                errorMsg.textContent = "Sorry, an error occurred: " + err.message;
+                chatBox.appendChild(errorMsg);
+            }
+            
+            input.disabled = false;
+            btn.disabled = false;
+            btn.textContent = 'Send';
+            input.focus();
+            chatBox.scrollTop = chatBox.scrollHeight;
+        
+
+        const inputEl = document.getElementById('chatInput');
+        if (inputEl) {
+            inputEl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') document.getElementById('sendBtn').click();
+            });
+        }
+    </script>
+</body>
+</html>

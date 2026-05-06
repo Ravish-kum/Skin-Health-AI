@@ -2,19 +2,21 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Skin AI</title>
+  <title>Skin AI — Checkup</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=3">
 </head>
 
 <body>
-
+<div class="bg-glow"></div>
+<canvas id="texture-canvas"></canvas>
+<div class="noise"></div>
 <div class="container">
 
   <h1>Skin Disease Classifier</h1>
-  <p class="subtitle">Upload an image of a skin disease and get the predicted class.</p>
+  <p class="subtitle">Upload an image of a skin condition and get an AI-powered diagnosis.</p>
 
-  <div class="main-box">
+  <div class="main-layout">
     <div class="left-panel">
       <!-- Upload Form -->
       <form action="/predict" method="post" enctype="multipart/form-data">
@@ -45,25 +47,26 @@
                     style="display:none;">
             {% endif %}
         </div>
-        <div class="spacer"></div>
 
         <div class="button-row">
-          <div class="buttons">
-              <button type="submit" class="submit-btn">Submit</button>
-              <button type="button" id="clearBtn" class="clear-btn">Clear</button>
-          </div>
+            <button type="submit" class="submit-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9z"/></svg>
+              Analyze
+            </button>
+            <button type="button" id="clearBtn" class="clear-btn">Clear</button>
         </div>
       </form>
     </div> 
+
     <!-- Result Box -->
+    {% if prediction %}
     <div class="right-panel">
-        {% if prediction %}
         <div class="result-box">
             <h2 class="prediction">{{ prediction }}</h2>
-            <p class="confidence" style="font-size: 15px;">Confidence: {{ probability }}%</p>
+            <p class="confidence">Confidence: {{ probability }}%</p>
 
             <div class="treatment-section">
-                <h3>Common Treatments:</h3>
+                <h3>Common Treatments</h3>
                 <ul>
                     {% for treatment in common_treatments %}
                         <li>{{ treatment }}</li>
@@ -72,85 +75,36 @@
             </div>
 
             <div class="treatment-section">
-                <h3>Specific Treatments:</h3>
+                <h3>Specific Treatments</h3>
                 <ul>
                     {% for treatment in specific_treatments %}
                         <li>{{ treatment }}</li>
                     {% endfor %}
                 </ul>
             </div>
+
+            <!-- Ask AI Button -->
+            <div style="margin-top: 32px; text-align: center;">
+                {% if request.session.get('user_id') %}
+                    <a href="/chat?diagnosis_id={{ diagnosis.diagnosis_id }}" class="ask-ai-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                      Ask AI Dermatologist
+                    </a>
+                {% else %}
+                    <a href="/signup" class="ask-ai-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                      Log in to Ask AI
+                    </a>
+                {% endif %}
+            </div>
         </div>
-        {% endif %}
     </div>
+    {% endif %}
   </div>
 </div>
 
-<script>
-document.getElementById("fileInput").addEventListener("change", function(event) {
-    const reader = new FileReader();
-    reader.onload = function(){
-        const img = document.getElementById("previewImage");
-        img.src = reader.result;
-        img.style.display = "block";
-    }
-    reader.readAsDataURL(event.target.files[0]);
-});
-
-const uploadBox = document.getElementById("uploadBox");
-const fileInput = document.getElementById("fileInput");
-const previewImage = document.getElementById("previewImage");
-const uploadContent = document.getElementById("uploadContent");
-const clearBtn = document.getElementById("clearBtn");
-
-// Click to open file dialog
-uploadBox.addEventListener("click", () => {
-    fileInput.click();
-});
-
-// When file selected
-fileInput.addEventListener("change", handleFile);
-
-// Drag over
-uploadBox.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    uploadBox.style.borderColor = "orange";
-});
-
-// Drag leave
-uploadBox.addEventListener("dragleave", () => {
-    uploadBox.style.borderColor = "#555";
-});
-
-// Drop
-uploadBox.addEventListener("drop", (e) => {
-    e.preventDefault();
-    fileInput.files = e.dataTransfer.files;
-    handleFile();
-});
-
-// Handle preview
-function handleFile() {
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        previewImage.src = e.target.result;
-        previewImage.style.display = "block";
-        uploadContent.style.display = "none";
-    }
-    reader.readAsDataURL(file);
-}
-
-// Clear button
-clearBtn.addEventListener("click", () => {
-    fileInput.value = "";
-    previewImage.src = "";
-    previewImage.style.display = "none";
-    uploadContent.style.display = "block";
-});
-
-</script>
+<script src="/static/canvas.js?v=3"></script>
+<script src="/static/script.js?v=3"></script>
 
 </body>
 </html>
