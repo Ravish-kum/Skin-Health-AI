@@ -8,7 +8,6 @@ import database
 import models
 from routers import auth, predict, chat, main as main_router
 
-# Initialize database tables
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()

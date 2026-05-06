@@ -43,13 +43,15 @@ async def chat_page(request: Request, diagnosis_id: int = None, db: Session = De
             
             if not chats:
                 try:
-                    pipe = get_llm()
-                    system_msg = f"You are an expert AI Dermatologist. The patient has been diagnosed with {selected_diagnosis.disease_name}. Provide a concise, numbered list of steps to help cure or manage it."
-                    messages = [{"role": "system", "content": system_msg}]
-                    prompt = pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-                    outputs = pipe(prompt, max_new_tokens=256, do_sample=False)
-                    full_output = outputs[0]["generated_text"]
-                    bot_text = full_output.split("<|assistant|>")[-1].strip()
+                    model = get_llm()
+                    prompt = f"You are an expert AI Dermatologist. The patient has been diagnosed with {selected_diagnosis.disease_name}. Provide a concise, numbered list of steps to help cure or manage it. Be professional and empathetic."
+                    
+                    response = model.generate_content(prompt)
+                    try:
+                        bot_text = response.text.strip()
+                    except Exception as e:
+                        print(f"Gemini error (possibly safety block): {e}")
+                        bot_text = "I'm here to help, but I'm unable to generate a response for this specific query due to safety guidelines. Please try rephrasing or consult a medical professional."
                     
                     new_chat = models.AIChat(
                         diagnosis_id=diagnosis_id,
@@ -101,11 +103,24 @@ async def send_chat_message(req: ChatMessageReq, request: Request, db: Session =
     messages.append({"role": "user", "content": req.message})
     
     try:
-        pipe = get_llm()
-        prompt = pipe.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        outputs = pipe(prompt, max_new_tokens=256, do_sample=True, temperature=0.7)
-        full_output = outputs[0]["generated_text"]
-        bot_text = full_output.split("<|assistant|>")[-1].strip()
+        model = get_llm()
+        
+        # Build a conversation context for Gemini
+        context = f"System: You are an expert AI Dermatologist assisting a patient diagnosed with {diag.disease_name}. Be helpful, concise, and professional.\n\n"
+        for c in chats:
+            if c.message:
+                context += f"User: {c.message}\n"
+            if c.response:
+                context += f"AI: {c.response}\n"
+        
+        context += f"User: {req.message}\nAI:"
+        
+        response = model.generate_content(context)
+        try:
+            bot_text = response.text.strip()
+        except Exception as e:
+            print(f"Gemini error (possibly safety block): {e}")
+            bot_text = "I'm sorry, I cannot answer that question right now. It might be due to safety filters or a technical issue. Please try a different question."
         
         new_chat = models.AIChat(
             diagnosis_id=req.diagnosis_id,

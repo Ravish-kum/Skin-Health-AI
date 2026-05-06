@@ -299,11 +299,15 @@
         const chatBox = document.getElementById('chatBox');
         if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 
-        const btn = document.getElementById('sendBtn');
-        const diagnosisId = btn.dataset.diagnosisId;
-        const text = input.value.trim();
-        if (!text) return;
-            
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const btn = document.getElementById('sendBtn');
+            if (!input || !btn) return;
+
+            const diagnosisId = btn.dataset.diagnosisId;
+            const text = input.value.trim();
+            if (!text) return;
+                
             const userMsg = document.createElement('div');
             userMsg.className = 'message user';
             userMsg.textContent = text;
@@ -319,7 +323,7 @@
                 const response = await fetch('/chat/message', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ diagnosis_id: diagnosisId, message: text })
+                    body: JSON.stringify({ diagnosis_id: parseInt(diagnosisId), message: text })
                 });
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
@@ -340,12 +344,17 @@
             btn.textContent = 'Send';
             input.focus();
             chatBox.scrollTop = chatBox.scrollHeight;
-        
+        }
+
+        const sendBtn = document.getElementById('sendBtn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', sendMessage);
+        }
 
         const inputEl = document.getElementById('chatInput');
         if (inputEl) {
             inputEl.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') document.getElementById('sendBtn').click();
+                if (e.key === 'Enter') sendMessage();
             });
         }
     </script>

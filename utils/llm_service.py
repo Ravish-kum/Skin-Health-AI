@@ -1,45 +1,34 @@
 import os
+import google.generativeai as genai
+from dotenv import load_dotenv
 
-os.environ["HF_HUB_DISABLE_XET"] = "1"
+# Ensure environment variables are loaded
+load_dotenv()
 
-llm_pipeline = None
+gemini_model = None
 
-class DummyPipeline:
-    def __init__(self):
-        self.tokenizer = DummyTokenizer()
-    def __call__(self, *args, **kwargs):
-        # Return a dummy response structure similar to pipeline output
-        return [{"generated_text": "<|assistant|>Hello! I am your AI Dermatologist. How can I assist you with your diagnosis? (LLM not available)"}]
-
-class DummyTokenizer:
-    def apply_chat_template(self, messages, tokenize=False, add_generation_prompt=True):
-        # Simple concatenation of messages for dummy pipeline
-        return "".join([msg["content"] for msg in messages])
+class DummyModel:
+    def generate_content(self, contents, **kwargs):
+        class DummyResponse:
+            def __init__(self):
+                self.text = "Hello! I am your AI Dermatologist. I'm currently in a limited mode because the Gemini API key is missing or invalid. Please check your .env file."
+        return DummyResponse()
 
 def get_llm():
-    global llm_pipeline
-    if llm_pipeline is None:
+    global gemini_model
+    if gemini_model is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key or api_key == "your_gemini_api_key_here":
+            print("Warning: GEMINI_API_KEY not found or not set in .env.")
+            return DummyModel()
+        
         try:
-            import torch
-            from transformers import pipeline
-            print("Loading TinyLlama...")
-            if torch.cuda.is_available():
-                dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
-            else:
-                dtype = torch.float32
-
-            hf_token = os.environ.get("HF_TOKEN", None)
-
-            llm_pipeline = pipeline(
-                "text-generation",
-                model="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-                dtype=dtype,
-                device_map="auto",
-                token=hf_token
-            )
-            print("TinyLlama loaded successfully.")
+            genai.configure(api_key=api_key)
+            # Using gemini-pro-latest based on the list of available models in your environment
+            gemini_model = genai.GenerativeModel('gemini-pro-latest')
+            print("Gemini model initialized successfully.")
         except Exception as e:
-            # If any error occurs (e.g., tokenizer load failure), fall back to dummy pipeline
-            print(f"Failed to load TinyLlama model: {e}. Using dummy pipeline.")
-            llm_pipeline = DummyPipeline()
-    return llm_pipeline
+            print(f"Error initializing Gemini: {e}")
+            return DummyModel()
+            
+    return gemini_model
